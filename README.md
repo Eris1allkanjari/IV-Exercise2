@@ -1,3 +1,5 @@
+## We've added this line to publish the brunch and commit the changes
+
 #InfoVis UE - Exercise 2: Linked View with d3
 Scaffold for building multiple coordinated views using d3 with a Python backend using Flask.
 
