@@ -7,8 +7,10 @@
     <link rel="stylesheet" type="text/css" href="{{url_for('static',filename='styles/style.css')}}">
 
     <script src="https://d3js.org/d3.v7.min.js"></script>
-    <script   src="{{url_for('static',filename='js/scatterplot.js')}}"></script>
+<!--    <script type="module"   src="{{url_for('static',filename='js/index.js')}}"></script>-->
     <script   src="{{url_for('static',filename='js/heatmap.js')}}"></script>
+    <script   src="{{url_for('static',filename='js/scatterplot.js')}}"></script>
+    <script   src="{{url_for('static',filename='js/indicator.js')}}"></script>
 
 
 </head>
@@ -33,7 +35,9 @@
     <svg id="svg_table"></svg>
         <p>&nbsp;</p>
         <label>Indicator:</label>
-        <select id="indicator_change" class="dropdown" onchange="changeIndicator(this)"></select>
+        <select id="indicator_change" class="dropdown" onchange="changeIndicator(this)">
+
+        </select>
     </div>
 
 
@@ -47,10 +51,19 @@
     let scatterPlotData = {{ scatterPlotData | safe  }};
 
     let teamData = {{ teamData | safe  }};
-    console.log(teamData);
+
+    let columnMapping = {{ columnMapping | safe  }};
+
+    for (let key in columnMapping) {
+      let value = columnMapping[key];
+      let option = document.createElement('option');
+      option.value = key;
+      option.textContent = value;
+      document.getElementById('indicator_change').appendChild(option);
+    }
 
      buildScatterplot(scatterPlotData);
-          buildHeatMap(teamData);
+    buildHeatMap(teamData,columnMapping,scatterPlotData,d3.select("#svg-scatterplot"));
 
 
 </script>

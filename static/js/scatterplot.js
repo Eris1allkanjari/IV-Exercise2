@@ -1,5 +1,5 @@
 // set the dimensions and margins of the graph
-let buildScatterplot = (data) => {
+ let buildScatterplot = (data) => {
     // set the dimensions and margins of the graph
     const margin = {top: 10, right: 30, bottom: 30, left: 30},
         width = 350 - margin.left - margin.right,
@@ -62,3 +62,4 @@ let buildScatterplot = (data) => {
     return svg;
 
 }
+

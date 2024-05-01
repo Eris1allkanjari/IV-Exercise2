@@ -4,6 +4,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
 import ast
 
+import utils
 from team_stats import TeamStats
 from utils import get_data_as_json, get_pca_columns, scale_numeric_values
 
@@ -64,13 +65,15 @@ def data():
             team_stats_data.append(team_stats)
 
     team_stats_dicts = [vars(obj) for obj in team_stats_data]
+    #team_stats_dicts_camel_case = utils.handle_object(team_stats_dicts)
+    column_mapping = json.dumps(utils.get_colum_mapping())
 
     # Convert the list of dictionaries to a JSON string
     team_stats_json = json.dumps(team_stats_dicts)
 
     # return the index file and the data
     return render_template("index.html", playerData=player_data, teamData=team_stats_json,
-                           playerDataFor36=cleaned_player_data, scatterPlotData=scatter_plot_data)
+                           playerDataFor36=cleaned_player_data, scatterPlotData=scatter_plot_data,columnMapping=column_mapping)
 
 
 if __name__ == '__main__':
