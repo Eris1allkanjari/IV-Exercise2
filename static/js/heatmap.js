@@ -1,6 +1,6 @@
 let buildHeatMap = (data, columnMapping, scatterplotData, scatterplotSvg) => {
     // Set up SVG and scales
-    const margin = { top: 50, right: 50, bottom: 50, left: 150 };
+    const margin = {top: 50, right: 50, bottom: 50, left: 150};
     const width = 700 - margin.left - margin.right;
     const height = 400 - margin.top - margin.bottom;
 
@@ -12,7 +12,9 @@ let buildHeatMap = (data, columnMapping, scatterplotData, scatterplotSvg) => {
 
     // Define the list of attributes (columns) to use for the heatmap
     const attributes = Object.keys(data[0]).filter(key => key !== "team_id" && key !== "team_name");
-    const attributeNames = attributes.map((d) => { return columnMapping[d]; });
+    const attributeNames = attributes.map((d) => {
+        return columnMapping[d];
+    });
 
     // Extract the domain (minimum and maximum values) for each attribute
     const attributeDomains = {};
@@ -44,9 +46,88 @@ let buildHeatMap = (data, columnMapping, scatterplotData, scatterplotSvg) => {
         .padding(0.5) // Adjust padding as needed
         .round(true); // Ensure pixels are rounded for sharp edges
 
+// Function to Display Tooltip
+    function displayTooltip(cellData, event) {
+        // Select the tooltip element or create one if it doesn't exist
+        let tooltip = d3.select("#heatmap-tooltip");
+        if (tooltip.empty()) {
+            tooltip = d3.select("#svg-heatmap")
+                .append("div")
+                .attr("id", "heatmap-tooltip")
+                .attr("class", "tooltip")  // Add the tooltip class
+                .style("position", "absolute")
+                .style("background-color", "white")
+                .style("border", "1px solid black")
+                .style("padding", "5px")
+                .style("border-radius", "5px")
+                .style("pointer-events", "none") // Make tooltip ignore mouse events
+                .style("opacity", 0); // Initially hidden
+        }
+
+        // Update tooltip content based on cell data
+        tooltip.html(`<strong>${cellData.team}</strong><br> ${columnMapping[cellData.attribute]} : ${cellData.value}`);
+
+        // Calculate tooltip position based on mouse coordinates
+        const tooltipWidth = tooltip.node().offsetWidth;
+        const tooltipHeight = tooltip.node().offsetHeight;
+        const mouseX = event.pageX;
+        const mouseY = event.pageY;
+
+        // Position the tooltip above the mouse pointer, ensuring it doesn't go off-screen
+        let tooltipLeft = mouseX + 10;
+        if (tooltipLeft + tooltipWidth > window.innerWidth) {
+            tooltipLeft = mouseX - tooltipWidth - 10;
+        }
+        let tooltipTop = mouseY - tooltipHeight - 10; // Adjusted to position above
+        if (tooltipTop < 0) {
+            // minimum distance from the top
+            tooltipTop = 10;
+        }
+
+        // Show the tooltip
+        tooltip.style("left", `${tooltipLeft}px`)
+            .style("top", `${tooltipTop}px`)
+            .style("opacity", 0.8)
+            .style("position", "absolute")
+            .style("background-color", "red")
+            .style("color","white")
+            .style("border-radius", "5px")
+            .style("padding", "0.2em");
+    }
+
+    function hideTooltip() {
+        // Select the tooltip element or create one if it doesn't exist
+        let tooltip = d3.select("#heatmap-tooltip");
+        tooltip.style("opacity", 0);
+    }
+
+    const mouseover = function (d) {
+        const dat = this.__data__
+
+        // Update scatterplot
+        updateScatterplotOnMouseOver(scatterplotSvg, dat.team);
+        displayTooltip(dat, d);
+    }
+
+    const mouseout = function () {
+        // Revert to original fill color when mouse leaves
+        const dat = this.__data__
+
+        const selectedTeam = dat.team;
+        // Update scatterplot
+        updateScatterplotOnMouseOut(scatterplotSvg, selectedTeam);
+        hideTooltip();
+
+    }
+
+    const mousemove = function (event, d) {
+        console.log(d)
+
+    }
+
     // Create heatmap rectangles
     svg.selectAll("rect")
-        .data(data.flatMap(d => attributes.map(attr => ({ team: d.team_name, attribute: attr, value: d[attr] }))))
+        .data(data.flatMap(d => attributes.map(attr => ({team: d.team_name, attribute: attr, value: d[attr]}))))
         .enter()
         .append("rect")
         .attr("x", d => xScale(d.team))
@@ -54,18 +135,7 @@ let buildHeatMap = (data, columnMapping, scatterplotData, scatterplotSvg) => {
         .attr("width", cellSize)
         .attr("height", cellSize)
         .attr("fill", d => getColor(d.value, d.attribute))
-        .on("mouseover", function(d) {
-            // Update scatterplot based on mouseover event
-            const dat = this.__data__;
-           console.log(dat)
-            console.log(scatterplotData)
-
-            const selectedTeam = dat.team;
-            // Filter scatterplot data based on selected team
-            const filteredData = scatterplotData.filter(item => item.team === selectedTeam);
-            // Update scatterplot
-            updateScatterplot(filteredData, scatterplotSvg);
-        });
+        .on("mouseover", mouseover).on("mousemove", mousemove).on("mouseout", mouseout);
 
     // Add X-axis labels
     svg.append("g")
@@ -73,6 +143,7 @@ let buildHeatMap = (data, columnMapping, scatterplotData, scatterplotSvg) => {
         .attr("transform", `translate(0, ${height})`)
         .call(d3.axisBottom(xScale))
         .selectAll("text")
+        .attr("class", "heatmap-label")
         .attr("transform", "rotate(-45)") // Rotate for better readability
         .attr("text-anchor", "end");
 
@@ -86,16 +157,21 @@ let buildHeatMap = (data, columnMapping, scatterplotData, scatterplotSvg) => {
 }
 
 // Function to update scatterplot
-function updateScatterplot(data, scatterplotSvg) {
-    // Remove existing circles
-    scatterplotSvg.selectAll("circle").remove();
-    // Draw circles based on updated data
+function updateScatterplotOnMouseOver(scatterplotSvg, teamName) {
     scatterplotSvg.selectAll("circle")
-        .data(data)
-        .enter()
-        .append("circle")
-        .attr("cx", d => d.x)
-        .attr("cy", d => d.y)
-        .attr("r", 5)
-        .style("fill", "blue"); // Adjust fill color as needed
+        .filter(d => d.name === teamName)
+        .style("fill", "red");
+
+}
+
+function updateScatterplotOnMouseOut(scatterplotSvg, teamName) {
+    scatterplotSvg.selectAll("circle")
+        .filter(d => d.name === teamName)
+        .each(function (d) {
+            const originalColor = d3.select(this).property("data-original-color");
+
+            if (originalColor) {
+                d3.select(this).style("fill", originalColor);
+            }
+        });
 }

@@ -24,8 +24,9 @@
 
 <div id="main_container" class="main_container">
      <div class="container" id="heatmap-container">
-        <p>&nbsp;</p>
         <svg id="svg-heatmap"></svg>
+        <div id="heatmap-tooltip" class="tooltip"></div>
+
     </div>
      <div class="container">
         <p>&nbsp;</p>
@@ -62,7 +63,7 @@
       document.getElementById('indicator_change').appendChild(option);
     }
 
-     buildScatterplot(scatterPlotData);
+     buildScatterplot(scatterPlotData,d3.select("#svg-heatmap"));
     buildHeatMap(teamData,columnMapping,scatterPlotData,d3.select("#svg-scatterplot"));
 
 

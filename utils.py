@@ -23,20 +23,6 @@ def scale_numeric_values(data):
     return scaler.fit_transform(filtered_columns_data)
 
 
-def to_camel_case(obj):
-    #Converts object property names to camel case (uppercase first letters after split).
-    return {' '.join(word.title() for word in key.split('_')): value for key, value in obj.items()}
-
-
-def handle_object(obj):
-    if isinstance(obj, dict):
-        return to_camel_case(obj)
-    elif isinstance(obj, list):
-        return [handle_object(item) for item in obj]  # Recursively handle each item
-    else:
-        raise ValueError("Unsupported object type. Expected dictionary or list.")
-
-
 def get_colum_mapping():
     return {
         'team_id': 'Team Id',

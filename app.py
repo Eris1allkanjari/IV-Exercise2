@@ -43,6 +43,7 @@ def data():
     scatter_plot_data = []
     for i in range(len(scaled_pca_team_2d)):
         obj = {"id": int(team_data.loc[i, 'Team ID']),
+               "name": team_data.loc[i, 'Team Name'],
                "x": scaled_pca_team_2d[i][0],
                "y": scaled_pca_team_2d[i][1]}
         scatter_plot_data.append(obj)
@@ -65,7 +66,6 @@ def data():
             team_stats_data.append(team_stats)
 
     team_stats_dicts = [vars(obj) for obj in team_stats_data]
-    #team_stats_dicts_camel_case = utils.handle_object(team_stats_dicts)
     column_mapping = json.dumps(utils.get_colum_mapping())
 
     # Convert the list of dictionaries to a JSON string
