@@ -63,13 +63,68 @@ let buildScatterplot = (data, heatmapSvg) => {
         const selectedTeam = dat.name;
         // Highlight the corresponding cell in the heatmap
         highlightCellInHeatmap(selectedTeam);
-    })
-        .on("mouseout", function () {
+    }).on("mouseout", function () {
             // Remove highlighting when mouse leaves the scatterplot circle
             const dat = this.__data__
             const selectedTeam = dat.name;
             removeHighlightFromHeatmap(selectedTeam);
-        });
+        }).on("click", function(d) {
+        // Get the selected dropdown indicator value
+        const selectedData = this.__data__;
+
+        const selectedIndicator = document.getElementById("indicator_change").value;
+        console.log(selectedIndicator)
+        plotTimeline(selectedData, selectedIndicator);
+    });
+
+// Function to plot a timeline of feature variability
+function plotTimeline(clickedData, selectedIndicator) {
+
+  const timelineSvg = d3.select("#line-chart");
+
+// 2. Prepare data for the timeline based on the heatmap data
+// For example, extract relevant data points from the heatmap data
+const timelineData = prepareTimelineData(heatmapData);
+
+// 3. Set up scales for mapping data to visual properties
+const xScale = d3.scaleLinear()
+    .domain([0, timelineData.length - 1])
+    .range([margin.left, width - margin.right]);
+
+const yScale = d3.scaleLinear()
+    .domain([0, d3.max(timelineData, d => d.value)])
+    .range([height - margin.bottom, margin.top]);
+
+// 4. Create SVG elements to represent the timeline
+timelineSvg.selectAll("rect")
+    .data(timelineData)
+    .enter()
+    .append("rect")
+    .attr("x", (d, i) => xScale(i))
+    .attr("y", d => yScale(d.value))
+    .attr("width", barWidth)
+    .attr("height", d => height - margin.bottom - yScale(d.value))
+    .attr("fill", "steelblue")
+    .on("mouseover", function(d) {
+        // Add interactivity as needed
+        d3.select(this).attr("fill", "orange");
+    })
+    .on("mouseout", function(d) {
+        // Restore original color on mouseout
+        d3.select(this).attr("fill", "steelblue");
+    });
+
+// 5. Add axes and labels as needed
+timelineSvg.append("g")
+    .attr("class", "x-axis")
+    .attr("transform", `translate(0, ${height - margin.bottom})`)
+    .call(d3.axisBottom(xScale));
+
+timelineSvg.append("g")
+    .attr("class", "y-axis")
+    .attr("transform", `translate(${margin.left}, 0)`)
+    .call(d3.axisLeft(yScale));
+};
 
 // Function to highlight the corresponding cell in the heatmap
     function highlightCellInHeatmap(teamName) {

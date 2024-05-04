@@ -102,10 +102,13 @@ let buildHeatMap = (data, columnMapping, scatterplotData, scatterplotSvg) => {
     }
 
     const mouseover = function (d) {
-        const dat = this.__data__
+
+        const heatmapCellColor = d3.select(this).attr("fill");
+        //get data of cell in heatmap
+        const dat = this.__data__;
 
         // Update scatterplot
-        updateScatterplotOnMouseOver(scatterplotSvg, dat.team);
+        updateScatterplotOnMouseOver(scatterplotSvg, dat.team,heatmapCellColor);
         displayTooltip(dat, d);
     }
 
@@ -120,10 +123,6 @@ let buildHeatMap = (data, columnMapping, scatterplotData, scatterplotSvg) => {
 
     }
 
-    const mousemove = function (event, d) {
-        console.log(d)
-
-    }
 
     // Create heatmap rectangles
     svg.selectAll("rect")
@@ -135,7 +134,7 @@ let buildHeatMap = (data, columnMapping, scatterplotData, scatterplotSvg) => {
         .attr("width", cellSize)
         .attr("height", cellSize)
         .attr("fill", d => getColor(d.value, d.attribute))
-        .on("mouseover", mouseover).on("mousemove", mousemove).on("mouseout", mouseout);
+        .on("mouseover", mouseover).on("mouseout", mouseout);
 
     // Add X-axis labels
     svg.append("g")
@@ -157,10 +156,11 @@ let buildHeatMap = (data, columnMapping, scatterplotData, scatterplotSvg) => {
 }
 
 // Function to update scatterplot
-function updateScatterplotOnMouseOver(scatterplotSvg, teamName) {
+function updateScatterplotOnMouseOver(scatterplotSvg, teamName,hetmapCellColor) {
     scatterplotSvg.selectAll("circle")
         .filter(d => d.name === teamName)
-        .style("fill", "red");
+        .style("fill",hetmapCellColor)
+        .style("stroke", "red");
 
 }
 
@@ -172,6 +172,7 @@ function updateScatterplotOnMouseOut(scatterplotSvg, teamName) {
 
             if (originalColor) {
                 d3.select(this).style("fill", originalColor);
+                 d3.select(this).style("stroke", "none");
             }
         });
 }

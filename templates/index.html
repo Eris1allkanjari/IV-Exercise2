@@ -41,6 +41,11 @@
         </select>
     </div>
 
+    <div class="container">
+    <svg id="line-chart"></svg>
+
+    </div>
+
 
 
 
@@ -55,12 +60,17 @@
 
     let columnMapping = {{ columnMapping | safe  }};
 
+    let cleanedPlayerData = {{ playerDataFor36 | safe  }};
+
     for (let key in columnMapping) {
-      let value = columnMapping[key];
-      let option = document.createElement('option');
-      option.value = key;
-      option.textContent = value;
-      document.getElementById('indicator_change').appendChild(option);
+        console.log(key)
+        if(key !== 'team_id' && key !== 'team_name') {
+ let value = columnMapping[key];
+            let option = document.createElement('option');
+            option.value = key;
+            option.textContent = value;
+            document.getElementById('indicator_change').appendChild(option);
+        }
     }
 
      buildScatterplot(scatterPlotData,d3.select("#svg-heatmap"));
