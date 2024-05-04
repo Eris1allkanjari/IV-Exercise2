@@ -40,7 +40,18 @@ let buildScatterplot = (data, heatmapSvg) => {
     svg.append("g")
         .call(d3.axisLeft(y)).remove();
 
-
+let mouseover = function (d) {
+        const dat = this.__data__
+        const selectedTeam = dat.name;
+        // Highlight the corresponding cell in the heatmap
+        highlightCellInHeatmap(selectedTeam);
+    }
+let mouseout = function () {
+            // Remove highlighting when mouse leaves the scatterplot circle
+            const dat = this.__data__
+            const selectedTeam = dat.name;
+            removeHighlightFromHeatmap(selectedTeam);
+        }
     // Add dots
     svg.append('g')
         .selectAll("dot")
@@ -58,17 +69,7 @@ let buildScatterplot = (data, heatmapSvg) => {
             let color = d3.interpolateRdBu((d.id - 1) / (29));
             d3.select(this).property("data-original-color", color)
             return color
-        }).on("mouseover", function (d) {
-        const dat = this.__data__
-        const selectedTeam = dat.name;
-        // Highlight the corresponding cell in the heatmap
-        highlightCellInHeatmap(selectedTeam);
-    }).on("mouseout", function () {
-            // Remove highlighting when mouse leaves the scatterplot circle
-            const dat = this.__data__
-            const selectedTeam = dat.name;
-            removeHighlightFromHeatmap(selectedTeam);
-        }).on("click", function(d) {
+        }).on("mouseover", mouseover).on("mouseout", mouseout).on("click", function(d) {
         // Get the selected dropdown indicator value
         const selectedData = this.__data__;
 

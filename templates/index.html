@@ -63,9 +63,8 @@
     let cleanedPlayerData = {{ playerDataFor36 | safe  }};
 
     for (let key in columnMapping) {
-        console.log(key)
         if(key !== 'team_id' && key !== 'team_name') {
- let value = columnMapping[key];
+            let value = columnMapping[key];
             let option = document.createElement('option');
             option.value = key;
             option.textContent = value;
