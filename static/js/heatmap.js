@@ -101,7 +101,7 @@ let buildHeatMap = (data, columnMapping, scatterplotData, scatterplotSvg) => {
         tooltip.style("opacity", 0);
     }
 
-    const mouseover = function (d) {
+    const handleMouseover = function (d) {
 
         const heatmapCellColor = d3.select(this).attr("fill");
         //get data of cell in heatmap
@@ -112,7 +112,7 @@ let buildHeatMap = (data, columnMapping, scatterplotData, scatterplotSvg) => {
         displayTooltip(dat, d);
     }
 
-    const mouseout = function () {
+    const handleMouseout = function () {
         // Revert to original fill color when mouse leaves
         const dat = this.__data__
 
@@ -134,7 +134,8 @@ let buildHeatMap = (data, columnMapping, scatterplotData, scatterplotSvg) => {
         .attr("width", cellSize)
         .attr("height", cellSize)
         .attr("fill", d => getColor(d.value, d.attribute))
-        .on("mouseover", mouseover).on("mouseout", mouseout);
+        .on("mouseover", handleMouseover)
+        .on("mouseout", handleMouseout);
 
     // Add X-axis labels
     svg.append("g")

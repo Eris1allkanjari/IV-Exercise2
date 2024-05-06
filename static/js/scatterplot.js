@@ -1,7 +1,7 @@
 // set the dimensions and margins of the graph
-let buildScatterplot = (data, heatmapSvg) => {
+let buildScatterplot = (data, heatmapSvg, playerData) => {
     // set the dimensions and margins of the graph
-    const margin = {top: 10, right: 30, bottom: 30, left: 30},
+    const margin = {top: 10, right: 30, bottom: 30, left: 50},
         width = 350 - margin.left - margin.right,
         height = 250 - margin.top - margin.bottom;
 
@@ -12,6 +12,7 @@ let buildScatterplot = (data, heatmapSvg) => {
         .attr("height", height + margin.top + margin.bottom)
         .append("g")
         .attr("transform", `translate(${margin.left}, ${margin.top})`);
+
 
     // Add X axis
     //(style('display', 'none') is used to hide the axis)
@@ -40,18 +41,43 @@ let buildScatterplot = (data, heatmapSvg) => {
     svg.append("g")
         .call(d3.axisLeft(y)).remove();
 
-let mouseover = function (d) {
+    const lineChartSvg = d3.select("#svg-line-chart")
+        .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", `translate(${margin.left},${margin.top})`);
+
+
+
+    let handleMouseover = function (d) {
         const dat = this.__data__
         const selectedTeam = dat.name;
         // Highlight the corresponding cell in the heatmap
         highlightCellInHeatmap(selectedTeam);
     }
-let mouseout = function () {
-            // Remove highlighting when mouse leaves the scatterplot circle
-            const dat = this.__data__
-            const selectedTeam = dat.name;
-            removeHighlightFromHeatmap(selectedTeam);
-        }
+    let handleMouseout = function () {
+        // Remove highlighting when mouse leaves the scatterplot circle
+        const dat = this.__data__
+        const selectedTeam = dat.name;
+        removeHighlightFromHeatmap(selectedTeam);
+    }
+
+    let handleMouseClick = function (d) {
+        // Get the selected dropdown indicator value
+        const selectedData = this.__data__;
+        const selectedIndicator = document.getElementById("indicator_change").value;
+
+        let mappedPlayerData = Array.from(d3.rollup(
+            playerData.filter(d => d.team_name === selectedData.name),
+            v => d3.sum(v, d => d[selectedIndicator]),
+            d => d.season.split("-")[0]
+        )).map(([year, value]) => ({year, value}))
+            .filter(d => !isNaN(d.value));
+
+
+        buildLineChart(mappedPlayerData);
+    }
     // Add dots
     svg.append('g')
         .selectAll("dot")
@@ -69,63 +95,60 @@ let mouseout = function () {
             let color = d3.interpolateRdBu((d.id - 1) / (29));
             d3.select(this).property("data-original-color", color)
             return color
-        }).on("mouseover", mouseover).on("mouseout", mouseout).on("click", function(d) {
-        // Get the selected dropdown indicator value
-        const selectedData = this.__data__;
+        })
+        .on("mouseover", handleMouseover)
+        .on("mouseout", handleMouseout)
+        .on("click", handleMouseClick);
 
-        const selectedIndicator = document.getElementById("indicator_change").value;
-        console.log(selectedIndicator)
-        plotTimeline(selectedData, selectedIndicator);
-    });
 
-// Function to plot a timeline of feature variability
-function plotTimeline(clickedData, selectedIndicator) {
+    function buildLineChart(data) {
+        const xScale = d3.scaleLinear()
+            .domain(d3.extent(data, d => parseInt(d.year)))
+            .range([0, width]);
 
-  const timelineSvg = d3.select("#line-chart");
+        const yScale = d3.scaleLinear()
+            .domain([0, d3.max(data, d => d.value)])
+            .range([height, 0]);
 
-// 2. Prepare data for the timeline based on the heatmap data
-// For example, extract relevant data points from the heatmap data
-const timelineData = prepareTimelineData(heatmapData);
+         // Remove existing x-axis
+    lineChartSvg.select(".x-axis").remove();
 
-// 3. Set up scales for mapping data to visual properties
-const xScale = d3.scaleLinear()
-    .domain([0, timelineData.length - 1])
-    .range([margin.left, width - margin.right]);
+    // Update x-axis
+    lineChartSvg.append("g")
+        .attr("class", "x-axis")
+        .attr("transform", `translate(0, ${height})`)
+        .call(d3.axisBottom(xScale).tickValues(xScale.ticks().filter((d, i) => i % 2 === 0)));
 
-const yScale = d3.scaleLinear()
-    .domain([0, d3.max(timelineData, d => d.value)])
-    .range([height - margin.bottom, margin.top]);
+    // Remove existing y-axis
+    lineChartSvg.select(".y-axis").remove();
 
-// 4. Create SVG elements to represent the timeline
-timelineSvg.selectAll("rect")
-    .data(timelineData)
-    .enter()
-    .append("rect")
-    .attr("x", (d, i) => xScale(i))
-    .attr("y", d => yScale(d.value))
-    .attr("width", barWidth)
-    .attr("height", d => height - margin.bottom - yScale(d.value))
-    .attr("fill", "steelblue")
-    .on("mouseover", function(d) {
-        // Add interactivity as needed
-        d3.select(this).attr("fill", "orange");
-    })
-    .on("mouseout", function(d) {
-        // Restore original color on mouseout
-        d3.select(this).attr("fill", "steelblue");
-    });
+    // Update y-axis
+    lineChartSvg.append("g")
+        .attr("class", "y-axis")
+        .call(d3.axisLeft(yScale));
 
-// 5. Add axes and labels as needed
-timelineSvg.append("g")
-    .attr("class", "x-axis")
-    .attr("transform", `translate(0, ${height - margin.bottom})`)
-    .call(d3.axisBottom(xScale));
+        // Update X and Y axes
+        // xAxisGroup.transition().call(d3.axisBottom(xScale));
+        // yAxisGroup.transition().call(d3.axisLeft(yScale));
 
-timelineSvg.append("g")
-    .attr("class", "y-axis")
-    .attr("transform", `translate(${margin.left}, 0)`)
-    .call(d3.axisLeft(yScale));
-};
+        const line = d3.line()
+            .x(d => xScale(parseInt(d.year)))
+            .y(d => yScale(d.value));
+
+        // Remove existing line path
+        lineChartSvg.select(".line-path").remove();
+
+        // Draw/update line chart
+        lineChartSvg.append("path")
+            .datum(data)
+            .attr("fill", "none")
+            .attr("class", "line-path")
+            .attr("stroke", "steelblue")
+            .attr("stroke-width", 2)
+            .attr("d", line);
+
+
+    };
 
 // Function to highlight the corresponding cell in the heatmap
     function highlightCellInHeatmap(teamName) {

@@ -33,4 +33,9 @@ body {
     padding-left: 1em;
 }
 
+#svg-line-chart {
+     height: 30em;
+    width: 30em;
+}
+
 
