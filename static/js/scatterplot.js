@@ -68,13 +68,13 @@ let buildScatterplot = (data, heatmapSvg, playerData) => {
         const selectedData = this.__data__;
         const selectedIndicator = document.getElementById("indicator_change").value;
 
-        let mappedPlayerData = Array.from(d3.rollup(
-            playerData.filter(d => d.team_name === selectedData.name),
-            v => d3.sum(v, d => d[selectedIndicator]),
-            d => d.season.split("-")[0]
-        )).map(([year, value]) => ({year, value}))
-            .filter(d => !isNaN(d.value));
-
+const mappedPlayerData = Array.from(d3.rollup(
+  playerData.filter(d => d.team_name === selectedData.name),
+  v => v[0][selectedIndicator], 
+  d => d.season.split("-")[0]
+)).map(([year, value]) => ({ year, value }))
+  .filter(d => !isNaN(d.value));
+console.log(mappedPlayerData)
 
         buildLineChart(mappedPlayerData);
     }

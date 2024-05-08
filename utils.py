@@ -77,6 +77,7 @@ def get_team_stats_data(team_data):
 
     return team_stats_data
 
+
 def get_cleaned_player_data_dic(player_data):
     # Split 'season' column into two parts
     player_data[['start_year', 'end_year']] = player_data['season'].str.split('-', expand=True)
@@ -97,3 +98,30 @@ def get_cleaned_player_data_dic(player_data):
     cleaned_player_data_dict = filtered_cleaned_player_data.to_dict(orient='records')
     return cleaned_player_data_dict
 
+
+def build_team_aggregate_dictionary(teams_columns, player_data_columns):
+    # creating a dictionary for use in the aggregate function of groupby
+    # first is used when we don't want to aggregate but only get the first element
+    # sum is used to get the sum of the rows
+    agg_dictionary = {}
+    cols = list(teams_columns) + list(player_data_columns)
+    mean_column_list = ['fg', 'fga', 'fgp', 'fg3', 'fg3a', 'fg3p', 'fg2', 'fg2a', 'fg2p', 'ft', 'fta', 'ftp', 'orb',
+                        'drb', 'trb', 'ast', 'stl', 'blk', 'tov', 'pf', 'pts', 'height', 'weight']
+
+    for c in list(cols):
+        if c == 'player_id':
+            agg_dictionary[c] = 'count'
+        elif c in mean_column_list:
+            agg_dictionary[c] = 'mean'
+
+    # adding team_name at the end
+    agg_dictionary['team_name'] = 'first'
+    return agg_dictionary
+
+
+def get_cleaned_player_data_by_season_and_team(cleaned_player_data, team_columns):
+    team_agg_dictionary = build_team_aggregate_dictionary(team_columns, cleaned_player_data.columns)
+
+    cleaned_data_grouped_by_season = cleaned_player_data.groupby(['season', 'team_name'], as_index=False).agg(
+        team_agg_dictionary)
+    return get_cleaned_player_data_dic(cleaned_data_grouped_by_season)

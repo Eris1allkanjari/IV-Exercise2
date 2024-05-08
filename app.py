@@ -27,9 +27,8 @@ def data():
     cleaned_player_data = get_data_as_json(DATA_FOLDER, "cleaned_df_player_stats.csv").drop(
         columns=['Unnamed: 0', 'level_0'])
 
-    cleaned_player_data_dict = utils.get_cleaned_player_data_dic(cleaned_player_data)
+    cleaned_player_data_dict = utils.get_cleaned_player_data_by_season_and_team(cleaned_player_data,team_data.columns)
 
-    print(cleaned_player_data_dict)
     # 2.Scale data and calculate PCA
     scaled_team_data = scale_numeric_values(team_data)
     scaled_pca_team = PCA(n_components=2).fit_transform(scaled_team_data)
