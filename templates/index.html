@@ -62,8 +62,6 @@
 
     let cleanedPlayerData = {{ playerDataFor36 | safe  }};
 
-    console.log(cleanedPlayerData)
-
     for (let key in columnMapping) {
         if(key !== 'team_id' && key !== 'team_name') {
             let value = columnMapping[key];

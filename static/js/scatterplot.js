@@ -49,7 +49,6 @@ let buildScatterplot = (data, heatmapSvg, playerData) => {
         .attr("transform", `translate(${margin.left},${margin.top})`);
 
 
-
     let handleMouseover = function (d) {
         const dat = this.__data__
         const selectedTeam = dat.name;
@@ -66,14 +65,43 @@ let buildScatterplot = (data, heatmapSvg, playerData) => {
     let handleMouseClick = function (d) {
         // Get the selected dropdown indicator value
         const selectedData = this.__data__;
-        const selectedIndicator = document.getElementById("indicator_change").value;
 
-const mappedPlayerData = Array.from(d3.rollup(
-  playerData.filter(d => d.team_name === selectedData.name),
-  v => v[0][selectedIndicator], 
-  d => d.season.split("-")[0]
-)).map(([year, value]) => ({ year, value }))
-  .filter(d => !isNaN(d.value));
+        let cMapping = {'height': 'height',
+        'weight': 'weight',
+
+        'total_games': 'total_games',
+        'total_minutes_played': 'minutes_played',
+        'field_goals': 'fg',
+        'field_goals_attempted': 'fga',
+        'field_goal_percent': 'fgp',
+        'three_pointers': 'fg3',
+        'three_pointers_attempted': 'fg3a',
+        'three_point_percent': 'fg3p',
+        'two_pointers': 'fg2',
+        'two_pointers_attempted': 'fg2a',
+        'two_point_percent': 'fg2p',
+        'free_throws': 'ft',
+        'free_throws_attempted': 'fta',
+        'free_throw_percent': 'ftp',
+        'offensive_rebounds': 'orb',
+        'defensive_rebounds': 'drb',
+        'total_rebounds': 'trb',
+        'assists': 'ast',
+        'steals': 'stl',
+        'blocks': 'blk',
+        'turnovers': 'tov',
+        'personal_fouls': 'pf',
+        'points': 'pts'
+        }
+        const selectedIndicator = document.getElementById("indicator_change").value;
+        console.log(playerData)
+
+        const mappedPlayerData = Array.from(d3.rollup(
+            playerData.filter(d => d.team_name === selectedData.name),
+            v => v[0][cMapping[selectedIndicator]],
+            d => d.season.split("-")[0]
+        )).map(([year, value]) => ({year, value}))
+            .filter(d => !isNaN(d.value));
 console.log(mappedPlayerData)
 
         buildLineChart(mappedPlayerData);
@@ -110,22 +138,22 @@ console.log(mappedPlayerData)
             .domain([0, d3.max(data, d => d.value)])
             .range([height, 0]);
 
-         // Remove existing x-axis
-    lineChartSvg.select(".x-axis").remove();
+        // Remove existing x-axis
+        lineChartSvg.select(".x-axis").remove();
 
-    // Update x-axis
-    lineChartSvg.append("g")
-        .attr("class", "x-axis")
-        .attr("transform", `translate(0, ${height})`)
-        .call(d3.axisBottom(xScale).tickValues(xScale.ticks().filter((d, i) => i % 2 === 0)));
+        // Update x-axis
+        lineChartSvg.append("g")
+            .attr("class", "x-axis")
+            .attr("transform", `translate(0, ${height})`)
+            .call(d3.axisBottom(xScale).tickValues(xScale.ticks().filter((d, i) => i % 2 === 0)));
 
-    // Remove existing y-axis
-    lineChartSvg.select(".y-axis").remove();
+        // Remove existing y-axis
+        lineChartSvg.select(".y-axis").remove();
 
-    // Update y-axis
-    lineChartSvg.append("g")
-        .attr("class", "y-axis")
-        .call(d3.axisLeft(yScale));
+        // Update y-axis
+        lineChartSvg.append("g")
+            .attr("class", "y-axis")
+            .call(d3.axisLeft(yScale));
 
         // Update X and Y axes
         // xAxisGroup.transition().call(d3.axisBottom(xScale));

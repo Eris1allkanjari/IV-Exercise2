@@ -111,6 +111,8 @@ def build_team_aggregate_dictionary(teams_columns, player_data_columns):
     for c in list(cols):
         if c == 'player_id':
             agg_dictionary[c] = 'count'
+        elif c == 'total_games' or c == 'minutes_played':
+            agg_dictionary[c] = 'sum'
         elif c in mean_column_list:
             agg_dictionary[c] = 'mean'
 
