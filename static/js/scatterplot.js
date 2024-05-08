@@ -94,7 +94,6 @@ let buildScatterplot = (data, heatmapSvg, playerData) => {
         'points': 'pts'
         }
         const selectedIndicator = document.getElementById("indicator_change").value;
-        console.log(playerData)
 
         const mappedPlayerData = Array.from(d3.rollup(
             playerData.filter(d => d.team_name === selectedData.name),
@@ -102,7 +101,6 @@ let buildScatterplot = (data, heatmapSvg, playerData) => {
             d => d.season.split("-")[0]
         )).map(([year, value]) => ({year, value}))
             .filter(d => !isNaN(d.value));
-console.log(mappedPlayerData)
 
         buildLineChart(mappedPlayerData);
     }
