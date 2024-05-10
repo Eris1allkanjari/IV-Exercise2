@@ -62,17 +62,9 @@
 
     let cleanedPlayerData = {{ playerDataFor36 | safe  }};
 
-    for (let key in columnMapping) {
-        if(key !== 'team_id' && key !== 'team_name' && key !== 'num_players' && key !== 'num_birth_places') {
-            let value = columnMapping[key];
-            let option = document.createElement('option');
-            option.value = key;
-            option.textContent = value;
-            document.getElementById('indicator_change').appendChild(option);
-        }
-    }
+   addSelectOptions(columnMapping);
 
-     buildScatterplot(scatterPlotData,d3.select("#svg-heatmap"),cleanedPlayerData);
+    buildScatterplot(scatterPlotData,d3.select("#svg-heatmap"),cleanedPlayerData);
     buildHeatMap(teamData,columnMapping,scatterPlotData,d3.select("#svg-scatterplot"));
 
 

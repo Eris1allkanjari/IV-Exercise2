@@ -24,8 +24,8 @@ def scale_numeric_values(data):
     scaler = StandardScaler().set_output(transform='pandas')
     return scaler.fit_transform(filtered_columns_data)
 
-
-def get_colum_mapping():
+#column mapping for the heatmap
+def get_column_mapping():
     return {
         'team_id': 'Team Id',
         'team_name': 'Team Name',
@@ -58,7 +58,7 @@ def get_colum_mapping():
         'points': 'Points'
     }
 
-
+#return a list of TeamStats object
 def get_team_stats_data(team_data):
     team_stats_data = []
     for index, row in team_data.iterrows():
@@ -77,7 +77,7 @@ def get_team_stats_data(team_data):
 
     return team_stats_data
 
-
+#create a dictionary and filter player data before 2003
 def get_cleaned_player_data_dic(player_data):
     # Split 'season' column into two parts
     player_data[['start_year', 'end_year']] = player_data['season'].str.split('-', expand=True)
@@ -98,7 +98,7 @@ def get_cleaned_player_data_dic(player_data):
     cleaned_player_data_dict = filtered_cleaned_player_data.to_dict(orient='records')
     return cleaned_player_data_dict
 
-
+#build aggregation dictionary to aggregate the team data grouped by season and team_name
 def build_team_aggregate_dictionary(teams_columns, player_data_columns):
     # creating a dictionary for use in the aggregate function of groupby
     # first is used when we don't want to aggregate but only get the first element
@@ -107,7 +107,6 @@ def build_team_aggregate_dictionary(teams_columns, player_data_columns):
     cols = list(teams_columns) + list(player_data_columns)
     mean_column_list = ['fg', 'fga', 'fgp', 'fg3', 'fg3a', 'fg3p', 'fg2', 'fg2a', 'fg2p', 'ft', 'fta', 'ftp', 'orb',
                         'drb', 'trb', 'ast', 'stl', 'blk', 'tov', 'pf', 'pts', 'height', 'weight']
-
     for c in list(cols):
         if c == 'player_id':
             agg_dictionary[c] = 'count'

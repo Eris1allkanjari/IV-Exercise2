@@ -15,8 +15,6 @@ let buildScatterplot = (data, heatmapSvg, playerData) => {
 
 
     // Add X axis
-    //(style('display', 'none') is used to hide the axis)
-    //TODO: update domain with max and min element
     const x = d3.scaleLinear()
         .domain([
             // Minimum value of the x property in your data
@@ -63,7 +61,7 @@ let buildScatterplot = (data, heatmapSvg, playerData) => {
     }
 
     let handleMouseClick = function (d) {
-        // Get the selected dropdown indicator value
+        //get the data of the selected scatterplot circle
         const selectedData = this.__data__;
 
         let cMapping = {'height': 'height',
@@ -95,6 +93,7 @@ let buildScatterplot = (data, heatmapSvg, playerData) => {
         }
         const selectedIndicator = document.getElementById("indicator_change").value;
 
+        //creates a list of object with season as key , and value of attribute as value
         const mappedPlayerData = Array.from(d3.rollup(
             playerData.filter(d => d.team_name === selectedData.name),
             v => v[0][cMapping[selectedIndicator]],
@@ -153,9 +152,6 @@ let buildScatterplot = (data, heatmapSvg, playerData) => {
             .attr("class", "y-axis")
             .call(d3.axisLeft(yScale));
 
-        // Update X and Y axes
-        // xAxisGroup.transition().call(d3.axisBottom(xScale));
-        // yAxisGroup.transition().call(d3.axisLeft(yScale));
 
         const line = d3.line()
             .x(d => xScale(parseInt(d.year)))
@@ -181,8 +177,8 @@ let buildScatterplot = (data, heatmapSvg, playerData) => {
         // Use teamName to identify and highlight the corresponding cell in the heatmap
         heatmapSvg.selectAll("rect")
             .filter(d => d.team === teamName)
-            .style("stroke", "green") // Apply yellow color to the stroke
-            .style("stroke-width", 2); // Increase the stroke width for better visibility
+            .style("stroke", "green")
+            .style("stroke-width", 2);
 
         const heatmapLabelNodes = heatmapSvg.selectAll(".heatmap-label");
         heatmapLabelNodes.filter(d => d === teamName)

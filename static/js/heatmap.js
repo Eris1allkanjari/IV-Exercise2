@@ -29,10 +29,10 @@ let buildHeatMap = (data, columnMapping, scatterplotData, scatterplotSvg) => {
         return d3.interpolateRdBu(normalizedValue);
     };
 
-    // 1. Define the size of the rectangles based on the width and height available for the heatmap grid
+    //  Define the size of the rectangles based on the width and height available for the heatmap grid
     const cellSize = Math.min(width / data.length, height / attributes.length);
 
-    // 2. Update the xScale to use the cellSize for the range
+    // Update the xScale to use the cellSize for the range
     const xScale = d3.scaleBand()
         .domain(data.map(d => d.team_name))
         .range([0, width])

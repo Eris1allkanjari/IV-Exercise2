@@ -55,10 +55,9 @@ def data():
     # Convert the list of dictionaries to a JSON string
     team_stats_json = json.dumps(team_stats_dicts)
 
-    #p
 
     # return the index file and the data
-    return render_template("index.html", playerData=player_data, teamData=team_stats_json,
+    return render_template("index.html", teamData=team_stats_json,
                            playerDataFor36=json.dumps(cleaned_player_data_dict), scatterPlotData=scatter_plot_data,
                            columnMapping=column_mapping)
 
