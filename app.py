@@ -50,7 +50,7 @@ def data():
     team_stats_data = utils.get_team_stats_data(team_data)
 
     team_stats_dicts = [vars(obj) for obj in team_stats_data]
-    column_mapping = json.dumps(utils.get_colum_mapping())
+    column_mapping = json.dumps(utils.get_column_mapping())
 
     # Convert the list of dictionaries to a JSON string
     team_stats_json = json.dumps(team_stats_dicts)

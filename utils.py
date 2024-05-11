@@ -24,6 +24,7 @@ def scale_numeric_values(data):
     scaler = StandardScaler().set_output(transform='pandas')
     return scaler.fit_transform(filtered_columns_data)
 
+
 #column mapping for the heatmap
 def get_column_mapping():
     return {
@@ -58,6 +59,7 @@ def get_column_mapping():
         'points': 'Points'
     }
 
+
 #return a list of TeamStats object
 def get_team_stats_data(team_data):
     team_stats_data = []
@@ -76,6 +78,7 @@ def get_team_stats_data(team_data):
             team_stats_data.append(team_stats)
 
     return team_stats_data
+
 
 #create a dictionary and filter player data before 2003
 def get_cleaned_player_data_dic(player_data):
@@ -97,6 +100,7 @@ def get_cleaned_player_data_dic(player_data):
 
     cleaned_player_data_dict = filtered_cleaned_player_data.to_dict(orient='records')
     return cleaned_player_data_dict
+
 
 #build aggregation dictionary to aggregate the team data grouped by season and team_name
 def build_team_aggregate_dictionary(teams_columns, player_data_columns):
